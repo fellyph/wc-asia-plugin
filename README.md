@@ -88,9 +88,16 @@ npx playwright show-trace test-results/<test-folder>/trace.zip
 
 ## CI/CD Workflows
 
-### Standard Pipeline (`.github/workflows/e2e-tests.yml`)
+### Testing & AI Fix Loop (`.github/workflows/ai-fix-loop.yml`)
 
-Runs API and E2E tests on every push and pull request to `main`.
+Runs API and E2E tests on every push and pull request to `main`. On pull requests, if tests fail:
+
+1. Captures the test output
+2. Analyzes failures using the [`google-github-actions/run-gemini-cli`](https://github.com/google-github-actions/run-gemini-cli) GitHub Action
+3. Posts a comment on the PR with the analysis and tags `@copilot` to fix the code
+4. Copilot pushes a fix, tests run again — the loop continues until tests pass
+
+**Required secret:** `GEMINI_API_KEY` — obtain from [Google AI Studio](https://aistudio.google.com/apikey) and add it in your repository settings under `Settings > Secrets and variables > Actions`.
 
 ### Live Preview
 
@@ -101,18 +108,6 @@ Click the badge above to try the plugin instantly in your browser — no local s
 ### PR Preview (`.github/workflows/pr-preview.yml`)
 
 Adds a "Preview in Playground" button to every pull request description using the [WordPress Playground PR Preview action](https://github.com/WordPress/action-wp-playground-pr-preview). Reviewers can test the plugin directly in the browser without any local setup.
-
-### AI Fix Loop (`.github/workflows/ai-fix-loop.yml`)
-
-Demonstrates an automated AI agent workflow on pull requests:
-
-1. Runs API and E2E tests
-2. If tests fail, captures the test output
-3. Gemini CLI analyzes the failures using `if: failure()` conditional
-4. Posts a comment on the PR with the analysis and tags `@copilot` to fix the code
-5. Copilot pushes a fix, tests run again — the loop continues until tests pass
-
-**Required secret:** `GEMINI_API_KEY` — add it in your repository settings under `Settings > Secrets and variables > Actions`.
 
 ## Plugin Architecture
 
@@ -139,8 +134,7 @@ The plugin follows WordPress best practices:
 │   └── e2e/
 │       └── plugin.spec.ts      # Playwright E2E tests
 ├── .github/workflows/
-│   ├── e2e-tests.yml           # Standard CI pipeline
-│   ├── ai-fix-loop.yml         # AI agent fix loop
+│   ├── ai-fix-loop.yml         # Testing pipeline + AI agent fix loop
 │   └── pr-preview.yml          # Playground preview button
 ├── blueprint.json              # WP Playground blueprint
 ├── vitest.config.ts

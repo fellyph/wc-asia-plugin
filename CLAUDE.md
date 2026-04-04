@@ -29,8 +29,7 @@ npx playwright test --debug   # Debug E2E tests with inspector
 **E2E Tests** (`tests/e2e/`): Playwright tests using `runCLI()` with the same WP Playground setup. Tests interact with admin settings page and verify front-end shortcode output.
 
 **CI Workflows** (`.github/workflows/`):
-- `e2e-tests.yml` — Standard pipeline: runs API and E2E tests on push/PR to main
-- `ai-fix-loop.yml` — AI agent loop: on test failure, captures output, runs Gemini CLI analysis, comments on PR tagging `@copilot` for fixes
+- `ai-fix-loop.yml` — Consolidated pipeline: runs API and E2E tests on push/PR to main. On PR test failure, uses `google-github-actions/run-gemini-cli@v0` to analyze failures and comments on PR tagging `@copilot` for fixes
 
 ## Key Patterns
 

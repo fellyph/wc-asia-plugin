@@ -2,3 +2,9 @@ node_modules/
 test-results/
 playwright-report/
 .claude/
+
+# gemini-cli settings
+.gemini/
+
+# GitHub App credentials
+gha-creds-*.json
