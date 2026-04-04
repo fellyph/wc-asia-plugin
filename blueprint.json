@@ -1,0 +1,26 @@
+{
+  "preferredVersions": {
+    "php": "8.3",
+    "wp": "latest"
+  },
+  "login": true,
+  "landingPage": "/wp-admin/options-general.php?page=wc-asia-demo",
+  "steps": [
+    {
+      "step": "activatePlugin",
+      "pluginPath": "wc-asia-demo/wc-asia-demo.php"
+    },
+    {
+      "step": "setSiteOptions",
+      "options": {
+        "blogname": "WC Asia Demo",
+        "blogdescription": "Testing Pipeline Demo",
+        "wc_asia_demo_greeting": "Hello, WC Asia!"
+      }
+    },
+    {
+      "step": "runPHP",
+      "code": "<?php\nrequire '/wordpress/wp-load.php';\nwp_insert_post([\n  'post_title'   => 'Greeting Page',\n  'post_content' => '[wc_asia_greeting]',\n  'post_status'  => 'publish',\n  'post_type'    => 'page',\n]);\n"
+    }
+  ]
+}

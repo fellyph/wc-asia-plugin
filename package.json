@@ -1,0 +1,16 @@
+{
+  "name": "wc-asia-demo",
+  "version": "1.0.0",
+  "description": "WC Asia Demo - Testing pipeline with WordPress Playground",
+  "private": true,
+  "scripts": {
+    "test:api": "vitest run",
+    "test:e2e": "playwright test",
+    "test": "vitest run && playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.52.0",
+    "@wp-playground/cli": "^3.1.15",
+    "vitest": "^3.1.0"
+  }
+}
