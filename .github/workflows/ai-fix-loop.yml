@@ -66,6 +66,12 @@ jobs:
           echo "=== E2E Test Results ===" >> test-output.txt
           cat test-output-e2e.txt >> test-output.txt
 
+          {
+            echo "TEST_OUTPUT<<EOF"
+            head -c 10000 test-output.txt
+            echo "EOF"
+          } >> "$GITHUB_ENV"
+
       - name: Analyze failures with Gemini CLI
         id: gemini_analysis
         if: ${{ steps.api_tests.outcome == 'failure' || steps.e2e_tests.outcome == 'failure' }}
@@ -75,7 +81,7 @@ jobs:
           prompt: |-
             Analyze the following test failures and provide a clear summary of what failed and suggest specific code fixes. Be concise:
 
-            $(cat test-output.txt)
+            ${{ env.TEST_OUTPUT }}
 
       - name: Comment on PR with failure analysis
         if: ${{ steps.api_tests.outcome == 'failure' || steps.e2e_tests.outcome == 'failure' }}
