@@ -7,13 +7,16 @@ A WordPress plugin demonstrating a testing pipeline using [WordPress Playground]
 - **Settings page** — Configure an API key and a greeting message at `Settings > WC Asia Demo`
 - **REST API endpoint** — `GET /wp-json/wc-asia-demo/v1/greeting` returns the greeting message as JSON
 - **Shortcode** — `[wc_asia_greeting]` renders the greeting message on any post or page
+- **Internationalization** — All strings are translatable via `wc-asia-demo` text domain
+- **PR Preview** — Every pull request gets a "Preview in Playground" button automatically
+
+## Requirements
+
+- WordPress 6.3+
+- PHP 8.0+
+- Node.js 20+ (for running tests)
 
 ## Getting Started
-
-### Prerequisites
-
-- Node.js 20+
-- npm
 
 ### Installation
 
@@ -35,6 +38,14 @@ npx wp-playground server \
 ```
 
 The site will be available at `http://127.0.0.1:9400`. The blueprint auto-logs you in, activates the plugin, and creates a "Greeting Page" with the shortcode.
+
+### Using the Plugin in Your Own Site
+
+1. Copy the `plugin/` folder into your WordPress `wp-content/plugins/` directory
+2. Activate "WC Asia Demo" from the WordPress admin
+3. Go to `Settings > WC Asia Demo` to configure your greeting message
+4. Add `[wc_asia_greeting]` to any post or page to display the greeting
+5. Access `GET /wp-json/wc-asia-demo/v1/greeting` for the JSON response
 
 ## Running Tests
 
@@ -81,6 +92,10 @@ npx playwright show-trace test-results/<test-folder>/trace.zip
 
 Runs API and E2E tests on every push and pull request to `main`.
 
+### PR Preview (`.github/workflows/pr-preview.yml`)
+
+Adds a "Preview in Playground" button to every pull request description using the [WordPress Playground PR Preview action](https://github.com/WordPress/action-wp-playground-pr-preview). Reviewers can test the plugin directly in the browser without any local setup.
+
 ### AI Fix Loop (`.github/workflows/ai-fix-loop.yml`)
 
 Demonstrates an automated AI agent workflow on pull requests:
@@ -93,11 +108,25 @@ Demonstrates an automated AI agent workflow on pull requests:
 
 **Required secret:** `GEMINI_API_KEY` — add it in your repository settings under `Settings > Secrets and variables > Actions`.
 
+## Plugin Architecture
+
+The plugin follows WordPress best practices:
+
+- **Single bootstrap entry point** — all hooks registered from `plugins_loaded`
+- **Admin isolation** — admin-only hooks loaded behind `is_admin()` check
+- **Settings API** — uses `register_setting()`, `add_settings_section()`, and `add_settings_field()` with `sanitize_callback`
+- **Security** — capability checks (`manage_options`), input sanitization, output escaping
+- **Lifecycle hooks** — `register_activation_hook` / `register_deactivation_hook` for setup and cleanup
+- **Clean uninstall** — `uninstall.php` removes all plugin options from the database
+- **i18n ready** — all strings wrapped with `__()` / `esc_html__()`, text domain loaded via `load_plugin_textdomain()`
+
 ## Project Structure
 
 ```
 ├── plugin/
-│   └── wc-asia-demo.php        # WordPress plugin
+│   ├── wc-asia-demo.php        # WordPress plugin
+│   ├── uninstall.php           # Clean uninstall handler
+│   └── languages/              # Translation files (.po/.mo)
 ├── tests/
 │   ├── api/
 │   │   └── rest-api.test.ts    # Vitest API tests
@@ -105,21 +134,32 @@ Demonstrates an automated AI agent workflow on pull requests:
 │       └── plugin.spec.ts      # Playwright E2E tests
 ├── .github/workflows/
 │   ├── e2e-tests.yml           # Standard CI pipeline
-│   └── ai-fix-loop.yml         # AI agent fix loop
+│   ├── ai-fix-loop.yml         # AI agent fix loop
+│   └── pr-preview.yml          # Playground preview button
 ├── blueprint.json              # WP Playground blueprint
 ├── vitest.config.ts
 ├── playwright.config.ts
 └── package.json
 ```
 
-## Using the Plugin in Your Own Site
+## Internationalization
 
-1. Copy the `plugin/` folder into your WordPress `wp-content/plugins/` directory
-2. Activate "WC Asia Demo" from the WordPress admin
-3. Go to `Settings > WC Asia Demo` to configure your greeting message
-4. Add `[wc_asia_greeting]` to any post or page to display the greeting
-5. Access `GET /wp-json/wc-asia-demo/v1/greeting` for the JSON response
+The plugin is translation-ready. To generate a `.pot` file:
+
+```bash
+wp i18n make-pot plugin/ plugin/languages/wc-asia-demo.pot
+```
+
+To create a translation (e.g., Portuguese):
+
+```bash
+wp i18n make-json plugin/languages/wc-asia-demo-pt_BR.po plugin/languages/
+```
 
 ## Presentation Context
 
 This plugin was built for a 30-minute talk at WC Asia about building testing pipelines with WordPress Playground. The `docs/` folder contains upstream WordPress Playground documentation used as reference material.
+
+## License
+
+GPL-2.0-or-later
