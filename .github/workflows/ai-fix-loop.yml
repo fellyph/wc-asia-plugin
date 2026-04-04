@@ -1,6 +1,8 @@
 name: AI Fix Loop
 
 on:
+  push:
+    branches: [main]
   pull_request:
     branches: [main]
 
