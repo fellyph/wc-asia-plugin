@@ -201,7 +201,7 @@ function wc_asia_demo_register_dashboard_widget() {
 function wc_asia_demo_render_dashboard_widget() {
 	$greeting = get_option( 'wc_asia_demo_greeting', 'Hello, WC Asia!' );
 	printf(
-		'<div class="wc-asia-led-display">%s</div>',
+		'<div class="wc-asia-led-display"><span>%s</span></div>',
 		esc_html( $greeting )
 	);
 }
@@ -225,6 +225,11 @@ function wc_asia_demo_enqueue_dashboard_styles( $hook ) {
 			background: #111;
 			border-radius: 12px;
 			padding: 24px 32px;
+			overflow: hidden;
+			white-space: nowrap;
+		}
+		.wc-asia-led-display span {
+			display: inline-block;
 			font-family: "Courier New", Courier, monospace;
 			font-size: 48px;
 			font-weight: bold;
@@ -237,10 +242,17 @@ function wc_asia_demo_enqueue_dashboard_styles( $hook ) {
 				0 0 21px #39ff14,
 				0 0 42px #0fa,
 				0 0 82px #0fa;
-			text-align: center;
-			overflow: hidden;
 			white-space: nowrap;
-			text-overflow: ellipsis;
+			animation: wc-asia-scroll 10s linear infinite;
+			padding-left: 100%;
+		}
+		@keyframes wc-asia-scroll {
+			0% {
+				transform: translateX(0);
+			}
+			100% {
+				transform: translateX(-100%);
+			}
 		}
 	';
 
