@@ -193,6 +193,13 @@ function wc_asia_demo_register_dashboard_widget() {
 		__( 'WC Asia Greeting', 'wc-asia-demo' ),
 		'wc_asia_demo_render_dashboard_widget'
 	);
+
+	// Force widget to the top of the first (normal) column.
+	global $wp_meta_boxes;
+	$dashboard = $wp_meta_boxes['dashboard']['normal']['core'];
+	$widget    = array( 'wc_asia_demo_greeting_widget' => $dashboard['wc_asia_demo_greeting_widget'] );
+	unset( $dashboard['wc_asia_demo_greeting_widget'] );
+	$wp_meta_boxes['dashboard']['normal']['core'] = array_merge( $widget, $dashboard );
 }
 
 /**
