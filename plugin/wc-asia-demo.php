@@ -36,6 +36,8 @@ function wc_asia_demo_init() {
 	if ( is_admin() ) {
 		add_action( 'admin_init', 'wc_asia_demo_register_settings' );
 		add_action( 'admin_menu', 'wc_asia_demo_add_settings_page' );
+		add_action( 'wp_dashboard_setup', 'wc_asia_demo_register_dashboard_widget' );
+		add_action( 'admin_enqueue_scripts', 'wc_asia_demo_enqueue_dashboard_styles' );
 	}
 }
 add_action( 'plugins_loaded', 'wc_asia_demo_init' );
@@ -174,6 +176,77 @@ function wc_asia_demo_render_settings_page() {
 		</form>
 	</div>
 	<?php
+}
+
+/*
+|--------------------------------------------------------------------------
+| Dashboard Widget
+|--------------------------------------------------------------------------
+*/
+
+/**
+ * Register the LED greeting dashboard widget.
+ */
+function wc_asia_demo_register_dashboard_widget() {
+	wp_add_dashboard_widget(
+		'wc_asia_demo_greeting_widget',
+		__( 'WC Asia Greeting', 'wc-asia-demo' ),
+		'wc_asia_demo_render_dashboard_widget'
+	);
+}
+
+/**
+ * Render the LED-style greeting on the dashboard.
+ */
+function wc_asia_demo_render_dashboard_widget() {
+	$greeting = get_option( 'wc_asia_demo_greeting', 'Hello, WC Asia!' );
+	printf(
+		'<div class="wc-asia-led-display">%s</div>',
+		esc_html( $greeting )
+	);
+}
+
+/**
+ * Enqueue inline CSS for the retro LED display on the dashboard.
+ *
+ * @param string $hook The current admin page hook.
+ */
+function wc_asia_demo_enqueue_dashboard_styles( $hook ) {
+	if ( 'index.php' !== $hook ) {
+		return;
+	}
+
+	$css = '
+		#wc_asia_demo_greeting_widget .inside {
+			padding: 0;
+			margin: 0;
+		}
+		.wc-asia-led-display {
+			background: #111;
+			border-radius: 12px;
+			padding: 24px 32px;
+			font-family: "Courier New", Courier, monospace;
+			font-size: 48px;
+			font-weight: bold;
+			color: #39ff14;
+			text-transform: uppercase;
+			letter-spacing: 4px;
+			text-shadow:
+				0 0 7px #39ff14,
+				0 0 10px #39ff14,
+				0 0 21px #39ff14,
+				0 0 42px #0fa,
+				0 0 82px #0fa;
+			text-align: center;
+			overflow: hidden;
+			white-space: nowrap;
+			text-overflow: ellipsis;
+		}
+	';
+
+	wp_register_style( 'wc-asia-demo-dashboard', false );
+	wp_enqueue_style( 'wc-asia-demo-dashboard' );
+	wp_add_inline_style( 'wc-asia-demo-dashboard', $css );
 }
 
 /*
