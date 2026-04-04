@@ -1,4 +1,10 @@
 {
+  "$schema": "https://playground.wordpress.net/blueprint-schema.json",
+  "meta": {
+    "title": "WC Asia Demo Plugin",
+    "author": "Fellyph Cintra",
+    "description": "Demo plugin showcasing a testing pipeline with WordPress Playground — includes settings page, REST API endpoint, and shortcode."
+  },
   "preferredVersions": {
     "php": "8.3",
     "wp": "latest"
@@ -7,20 +13,31 @@
   "landingPage": "/wp-admin/options-general.php?page=wc-asia-demo",
   "steps": [
     {
-      "step": "activatePlugin",
-      "pluginPath": "wc-asia-demo/wc-asia-demo.php"
+      "step": "installPlugin",
+      "pluginData": {
+        "resource": "git:directory",
+        "url": "https://github.com/fellyph/wc-asia-plugin",
+        "ref": "main",
+        "refType": "branch",
+        "path": "/plugin"
+      },
+      "options": {
+        "activate": true,
+        "targetFolderName": "wc-asia-demo"
+      }
     },
     {
       "step": "setSiteOptions",
       "options": {
         "blogname": "WC Asia Demo",
         "blogdescription": "Testing Pipeline Demo",
+        "wc_asia_demo_api_key": "demo-api-key-12345",
         "wc_asia_demo_greeting": "Hello, WC Asia!"
       }
     },
     {
       "step": "runPHP",
-      "code": "<?php\nrequire '/wordpress/wp-load.php';\nwp_insert_post([\n  'post_title'   => 'Greeting Page',\n  'post_content' => '[wc_asia_greeting]',\n  'post_status'  => 'publish',\n  'post_type'    => 'page',\n]);\n"
+      "code": "<?php\nrequire '/wordpress/wp-load.php';\n\n// Create a page with the shortcode\n$page_id = wp_insert_post([\n  'post_title'   => 'Greeting Page',\n  'post_content' => '<!-- wp:shortcode -->[wc_asia_greeting]<!-- /wp:shortcode -->',\n  'post_status'  => 'publish',\n  'post_type'    => 'page',\n]);\n\n// Set as the front page\nupdate_option('show_on_front', 'page');\nupdate_option('page_on_front', $page_id);\n"
     }
   ]
 }

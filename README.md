@@ -92,6 +92,12 @@ npx playwright show-trace test-results/<test-folder>/trace.zip
 
 Runs API and E2E tests on every push and pull request to `main`.
 
+### Live Preview
+
+[![Preview in Playground](https://img.shields.io/badge/Preview%20in-WordPress%20Playground-blue?logo=wordpress)](https://playground.wordpress.net/#{"$schema":"https://playground.wordpress.net/blueprint-schema.json","preferredVersions":{"php":"8.3","wp":"latest"},"login":true,"landingPage":"/wp-admin/options-general.php?page=wc-asia-demo","steps":[{"step":"installPlugin","pluginData":{"resource":"git:directory","url":"https://github.com/fellyph/wc-asia-plugin","ref":"main","refType":"branch","path":"/plugin"},"options":{"activate":true,"targetFolderName":"wc-asia-demo"}},{"step":"setSiteOptions","options":{"blogname":"WC Asia Demo","blogdescription":"Testing Pipeline Demo","wc_asia_demo_api_key":"demo-api-key-12345","wc_asia_demo_greeting":"Hello, WC Asia!"}},{"step":"runPHP","code":"<?php\nrequire '/wordpress/wp-load.php';\n$page_id = wp_insert_post(['post_title'=>'Greeting Page','post_content'=>'[wc_asia_greeting]','post_status'=>'publish','post_type'=>'page']);\nupdate_option('show_on_front','page');\nupdate_option('page_on_front',$page_id);\n"}]})
+
+Click the badge above to try the plugin instantly in your browser — no local setup needed.
+
 ### PR Preview (`.github/workflows/pr-preview.yml`)
 
 Adds a "Preview in Playground" button to every pull request description using the [WordPress Playground PR Preview action](https://github.com/WordPress/action-wp-playground-pr-preview). Reviewers can test the plugin directly in the browser without any local setup.
