@@ -38,6 +38,7 @@ function wc_asia_demo_init() {
 		add_action( 'admin_menu', 'wc_asia_demo_add_settings_page' );
 		add_action( 'wp_dashboard_setup', 'wc_asia_demo_register_dashboard_widget' );
 		add_action( 'admin_enqueue_scripts', 'wc_asia_demo_enqueue_dashboard_styles' );
+		add_action( 'admin_enqueue_scripts', 'wc_asia_demo_enqueue_settings_scripts' );
 	}
 }
 add_action( 'plugins_loaded', 'wc_asia_demo_init' );
@@ -120,11 +121,18 @@ function wc_asia_demo_register_settings() {
  * @param array $args Field arguments from add_settings_field().
  */
 function wc_asia_demo_render_api_key_field( $args ) {
-	$value = get_option( 'wc_asia_demo_api_key', '' );
+	$value    = get_option( 'wc_asia_demo_api_key', '' );
+	$field_id = esc_attr( $args['label_for'] );
 	printf(
-		'<input type="text" id="%s" name="wc_asia_demo_api_key" value="%s" class="regular-text" />',
-		esc_attr( $args['label_for'] ),
-		esc_attr( $value )
+		'<input type="password" id="%1$s" name="wc_asia_demo_api_key" value="%2$s" class="regular-text" />' .
+		' <button type="button" class="button button-secondary wc-asia-api-key-toggle"' .
+		' data-field="%1$s"' .
+		' data-show="%3$s"' .
+		' data-hide="%4$s">%3$s</button>',
+		$field_id,
+		esc_attr( $value ),
+		esc_attr( __( 'Show API Key', 'wc-asia-demo' ) ),
+		esc_attr( __( 'Hide API Key', 'wc-asia-demo' ) )
 	);
 }
 
@@ -162,8 +170,6 @@ function wc_asia_demo_render_settings_page() {
 	if ( ! current_user_can( 'manage_options' ) ) {
 		return;
 	}
-
-	settings_errors();
 	?>
 	<div class="wrap">
 		<h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
@@ -211,6 +217,39 @@ function wc_asia_demo_render_dashboard_widget() {
 		'<div class="wc-asia-led-display"><span>%s</span></div>',
 		esc_html( $greeting )
 	);
+}
+
+/**
+ * Enqueue inline JavaScript for the API Key toggle on the settings page.
+ *
+ * @param string $hook The current admin page hook.
+ */
+function wc_asia_demo_enqueue_settings_scripts( $hook ) {
+	if ( 'settings_page_wc-asia-demo' !== $hook ) {
+		return;
+	}
+
+	$js = '
+		document.addEventListener("DOMContentLoaded", function () {
+			document.querySelectorAll(".wc-asia-api-key-toggle").forEach(function (btn) {
+				btn.addEventListener("click", function () {
+					var field = document.getElementById(btn.dataset.field);
+					if (!field) return;
+					if (field.type === "password") {
+						field.type = "text";
+						btn.textContent = btn.dataset.hide;
+					} else {
+						field.type = "password";
+						btn.textContent = btn.dataset.show;
+					}
+				});
+			});
+		});
+	';
+
+	wp_register_script( 'wc-asia-demo-settings', false );
+	wp_enqueue_script( 'wc-asia-demo-settings' );
+	wp_add_inline_script( 'wc-asia-demo-settings', $js );
 }
 
 /**
