@@ -115,6 +115,16 @@ test("shortcode renders greeting on front-end", async ({ page }) => {
   await expect(greeting).toContainText("WC Asia");
 });
 
+test("plugins listing page shows settings link", async ({ page }) => {
+  await page.goto(`${cli.serverUrl}/wp-admin/plugins.php`);
+
+  const settingsLink = page.locator(
+    `a[href*="options-general.php?page=wc-asia-demo"]`
+  );
+  await expect(settingsLink.first()).toBeVisible();
+  await expect(settingsLink.first()).toHaveText("Settings");
+});
+
 test("greeting updates on front-end after settings change", async ({
   page,
 }) => {

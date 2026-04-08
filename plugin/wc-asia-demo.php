@@ -39,6 +39,7 @@ function wc_asia_demo_init() {
 		add_action( 'wp_dashboard_setup', 'wc_asia_demo_register_dashboard_widget' );
 		add_action( 'admin_enqueue_scripts', 'wc_asia_demo_enqueue_dashboard_styles' );
 		add_action( 'admin_enqueue_scripts', 'wc_asia_demo_enqueue_settings_scripts' );
+		add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), 'wc_asia_demo_add_action_links' );
 	}
 }
 add_action( 'plugins_loaded', 'wc_asia_demo_init' );
@@ -65,6 +66,22 @@ function wc_asia_demo_activate() {
  */
 function wc_asia_demo_deactivate() {
 	// Nothing to clean up on deactivation — data is removed on uninstall.
+}
+
+/**
+ * Add a Settings link to the plugin action links on the Plugins listing page.
+ *
+ * @param array $links Existing action links.
+ * @return array Modified action links.
+ */
+function wc_asia_demo_add_action_links( $links ) {
+	$settings_link = sprintf(
+		'<a href="%s">%s</a>',
+		esc_url( admin_url( 'options-general.php?page=wc-asia-demo' ) ),
+		esc_html__( 'Settings', 'wc-asia-demo' )
+	);
+	array_unshift( $links, $settings_link );
+	return $links;
 }
 
 /*
