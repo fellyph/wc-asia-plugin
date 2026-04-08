@@ -60,6 +60,37 @@ test("settings page loads", async ({ page }) => {
   await expect(page.getByLabel("Greeting Message")).toBeVisible();
 });
 
+test("dashboard widget displays greeting", async ({ page }) => {
+  await page.goto(`${cli.serverUrl}/wp-admin/`);
+
+  const ledDisplay = page.locator(".wc-asia-led-display");
+  await expect(ledDisplay).toBeVisible();
+  await expect(ledDisplay).toContainText("Hello, WC Asia!");
+});
+
+test("API key toggle shows and hides the key", async ({ page }) => {
+  await page.goto(
+    `${cli.serverUrl}/wp-admin/options-general.php?page=wc-asia-demo`
+  );
+
+  const apiKeyField = page.locator("#wc_asia_demo_api_key");
+  const toggleButton = page.locator(".wc-asia-api-key-toggle");
+
+  // Field starts as password (hidden)
+  await expect(apiKeyField).toHaveAttribute("type", "password");
+  await expect(toggleButton).toHaveText("Show API Key");
+
+  // Click to reveal the key
+  await toggleButton.click();
+  await expect(apiKeyField).toHaveAttribute("type", "text");
+  await expect(toggleButton).toHaveText("Hide API Key");
+
+  // Click again to hide the key
+  await toggleButton.click();
+  await expect(apiKeyField).toHaveAttribute("type", "password");
+  await expect(toggleButton).toHaveText("Show API Key");
+});
+
 test("save settings persists values", async ({ page }) => {
   await page.goto(
     `${cli.serverUrl}/wp-admin/options-general.php?page=wc-asia-demo`
