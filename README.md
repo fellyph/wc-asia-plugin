@@ -18,7 +18,11 @@ A WordPress plugin demonstrating a testing pipeline using [WordPress Playground]
 
 ## Getting Started
 
-### Installation
+### Download & Install (Recommended)
+
+Download the latest `wc-asia-demo.zip` from the [GitHub Releases page](https://github.com/fellyph/wc-asia-plugin/releases/latest) and install it via **Plugins → Add New → Upload Plugin** in your WordPress admin.
+
+### Installation from Source
 
 ```bash
 git clone https://github.com/fellyph/wc-asia-plugin.git
@@ -88,6 +92,14 @@ npx playwright show-trace test-results/<test-folder>/trace.zip
 
 ## CI/CD Workflows
 
+### Release Pipeline (`.github/workflows/release.yml`)
+
+Triggered when a `v*` tag is pushed (e.g., `v1.0.0`). The workflow:
+
+1. Runs the full test suite (API + E2E)
+2. Builds `wc-asia-demo.zip` from the `plugin/` directory
+3. Creates a GitHub Release and attaches the zip as a downloadable artifact
+
 ### Testing & AI Fix Loop (`.github/workflows/ai-fix-loop.yml`)
 
 Runs API and E2E tests on every push and pull request to `main`. On pull requests, if tests fail:
@@ -128,6 +140,7 @@ The plugin follows WordPress best practices:
 │   └── e2e/
 │       └── plugin.spec.ts      # Playwright E2E tests
 ├── .github/workflows/
+│   ├── release.yml             # Release pipeline (tag → build zip → GitHub Release)
 │   ├── ai-fix-loop.yml         # Testing pipeline + AI agent fix loop
 │   └── pr-preview.yml          # Playground preview button
 ├── blueprint.json              # WP Playground blueprint

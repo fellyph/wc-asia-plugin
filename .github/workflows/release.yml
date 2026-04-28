@@ -1,0 +1,77 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build & Publish Release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ hashFiles('package-lock.json') }}
+
+      - name: Install Playwright browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install chromium --with-deps
+
+      - name: Install Playwright system deps
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps chromium
+
+      - name: Run all tests
+        run: npm test
+
+      - name: Build release zip
+        run: |
+          cd plugin
+          zip -r ../wc-asia-demo.zip .
+          cd ..
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: wc-asia-demo.zip
+          generate_release_notes: false
+          body: |
+            ## WC Asia Demo Plugin — ${{ github.ref_name }}
+
+            A WordPress plugin demonstrating a testing pipeline with WordPress Playground, Playwright, Vitest, and GitHub Actions.
+
+            ### Features
+
+            - **Settings page** — Configure an API key and a greeting message at `Settings > WC Asia Demo`
+            - **REST API endpoint** — `GET /wp-json/wc-asia-demo/v1/greeting` returns the greeting message as JSON
+            - **Shortcode** — `[wc_asia_greeting]` renders the greeting message on any post or page
+            - **Dashboard widget** — LED-style scrolling greeting widget on the WordPress admin dashboard
+
+            ### Installation
+
+            1. Download `wc-asia-demo.zip` from the assets below
+            2. In your WordPress admin, go to **Plugins → Add New → Upload Plugin**
+            3. Upload the zip file and click **Install Now**, then **Activate**
+            4. Go to `Settings > WC Asia Demo` to configure your greeting message
+
+            ### Requirements
+
+            - WordPress 6.3+
+            - PHP 8.0+
